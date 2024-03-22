@@ -14,7 +14,7 @@ class SmartShuntClient(BaseClient):
             {'register': 0, 'words': 0, 'parser': self.parse_shunt_data},
         ]
     
-    def create_generic_read_request(self):
+    def create_generic_read_request(self, device_id, function, regAddr, readWrd):
         return [0xe9, 0xfc, 0x02, 0x37, 0x02]
 
     def on_data_received(self, response):
