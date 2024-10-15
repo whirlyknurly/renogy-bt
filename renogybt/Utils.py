@@ -4,14 +4,14 @@ def bytes_to_int(bs, offset, length, signed = False, scale = 1):
         if len(bs) < (offset + length):
             return ret
         if length > 0:
-            byteorder='big'
+            byteorder = 'big'
             start = offset
             end = offset + length
         else:
-            byteorder='little'
+            byteorder = 'little'
             start = offset + length + 1
             end = offset + 1
-        return round(int.from_bytes(bs[start:end], byteorder = byteorder, signed = signed) * scale, 2)
+        return round(int.from_bytes(bs[start:end], byteorder=byteorder, signed = signed) * scale, 2)
 
 # Converts an integer into 2 bytes (16 bits)
 # Returns either the first or second byte as an int
@@ -23,12 +23,10 @@ def int_to_bytes(i, pos = 0):
     return 0
 
 def parse_temperature(raw_value, unit):
-    sign = raw_value >> 7
-    celcius = -(raw_value - 128) if sign == 1 else raw_value
-    return format_temperature(celcius, unit)
+    return format_temperature(128 - raw_value if raw_value >> 7 else raw_value, unit)
 
 def format_temperature(celcius, unit = 'F'):
-    return (celcius * 9/5) + 32 if unit.strip() == 'F' else celcius
+    return (celcius * 9/5) + 32 if unit.upper.strip() == 'F' else celcius
 
 def filter_fields(data, fields_str):
     fields = [x.strip() for x in fields_str.split(',')] if len(fields_str) > 0 else [] # trim spaces
