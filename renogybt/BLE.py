@@ -6,7 +6,7 @@ DISCOVERY_TIMEOUT = 5 # max wait time to complete the bluetooth scanning (second
 
 class DeviceManager(gatt.DeviceManager):
     def __init__(self, adapter_name, mac_address, alias):
-        super(). __init__(adapter_name)
+        super().__init__(adapter_name)
         self.device_found = False
         self.mac_address = mac_address
         self.device_alias = alias
@@ -16,22 +16,28 @@ class DeviceManager(gatt.DeviceManager):
         logging.info("Adapter status - Powered: {}".format(self.is_adapter_powered))
 
     def discover(self):
-        discovering = True; wait = DISCOVERY_TIMEOUT; self.device_found = False; mac_address = self.mac_address.upper();
+        self.device_found = False
 
         self.update_devices()
         logging.info("Starting discovery...")
         self.start_discovery()
 
-        while discovering:
-            time.sleep(1)
-            logging.info("Devices found: %s", len(self.devices()))
+        for w in range(DISCOVERY_TIMEOUT):
+            if self.device_found:
+                break
             for dev in self.devices():
-                if dev.mac_address != None and (dev.mac_address.upper() == mac_address or (dev.alias() and dev.alias().strip() == self.device_alias)) and discovering:
+                if dev.mac_address is None:
+                    continue
+                if dev.mac_address.upper() == self.mac_address.upper or \
+                        (dev.alias() and dev.alias().strip() == self.device_alias):
                     logging.info("Found matching device %s => [%s]", dev.alias(), dev.mac_address)
-                    discovering = False; self.device_found = True
-            wait = wait -1
-            if (wait <= 0):
-                discovering = False
+                    self.device_found = True
+                    break
+            else:
+                for dev in self.devices():
+                    logging.info("   Found: %s" % dev)
+            logging.info("Devices found: %s", len(self.devices()))
+            time.sleep(1)
         self.stop_discovery()
 
 
